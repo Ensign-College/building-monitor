@@ -7,7 +7,6 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-app.use(express.static('./client/build'));
 app.use(cors());
 app.use(express.json());
 
@@ -51,16 +50,6 @@ app.post('/update-sector', (req, res) => {
     res.status(400).send({ success: false, message: 'Invalid sector' });
   }
 });
-
-app.get('*',(req,res)=>{
-  try{
-      res.sendFile(__dirname+'/client/build/index.html');
-  } catch (error){
-      res.status(500);
-      console.log('Error: '+error.message+" "+error.stack);
-      res.send();
-  }
-})
 
 server.listen(4000, () => {
   console.log('Server is running on port 4000');
