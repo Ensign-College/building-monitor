@@ -16,6 +16,7 @@ spec:
       containers:
       - name: building-monitor-api
         image: us-east1-docker.pkg.dev/cubs-consulting/bus-reservations/building-monitor-api:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 4000
 
