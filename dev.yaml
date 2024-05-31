@@ -43,7 +43,7 @@ metadata:
     nginx.ingress.kubernetes.io/websocket-services: "building-monitor-api"
 spec:
   rules:
-    http:
+  - http:
       paths:
       - pathType: Prefix
         path: "/"
