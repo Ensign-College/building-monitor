@@ -53,17 +53,4 @@ spec:
             name: building-monitor-api
             port:
               number: 80
----
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: building-monitor-websocket
-spec:
-  selector:
-    app: building-monitor-api
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 4000
-  type: LoadBalancer
+
