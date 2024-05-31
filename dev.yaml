@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: building-monitor-api
-        image: <your-docker-image>
+        image: us-east1-docker.pkg.dev/cubs-consulting/bus-reservations/building-monitor-api:latest
         ports:
         - containerPort: 4000
 
@@ -43,7 +43,6 @@ metadata:
     nginx.ingress.kubernetes.io/websocket-services: "building-monitor-api"
 spec:
   rules:
-  - host: <your-domain>
     http:
       paths:
       - pathType: Prefix
