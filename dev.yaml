@@ -1,0 +1,55 @@
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: building-monitor-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: building-monitor-api
+  template:
+    metadata:
+      labels:
+        app: building-monitor-api
+    spec:
+      containers:
+      - name: building-monitor-api
+        image: <your-docker-image>
+        ports:
+        - containerPort: 4000
+
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: building-monitor-api
+spec:
+  selector:
+    app: building-monitor-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 4000
+
+---
+# Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: building-monitor-api
+  annotations:
+    nginx.ingress.kubernetes.io/websocket-services: "building-monitor-api"
+spec:
+  rules:
+  - host: <your-domain>
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: building-monitor-api
+            port:
+              number: 80

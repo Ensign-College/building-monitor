@@ -52,6 +52,18 @@ app.post('/update-sector', (req, res) => {
   }
 });
 
+app.get('*',(req,res)=>{
+  try{
+      res.sendFile(__dirname+'/client/build/index.html');
+  } catch (error){
+      res.status(500);
+      console.log('Error: '+error.message+" "+error.stack);
+      res.send();
+  }
+})
+
 server.listen(4000, () => {
   console.log('Server is running on port 4000');
 });
+
+module.exports=app;
