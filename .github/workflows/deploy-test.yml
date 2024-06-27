@@ -1,0 +1,76 @@
+name: Build Image and Push to Artifact Registry
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  GKE_ZONE: us-east1   # Add your cluster zone here.
+
+jobs:
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish, and Deploy
+    runs-on: ubuntu-latest
+    # Prototype changes go here:
+    environment: development
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # Setup gcloud CLI
+    - uses: google-github-actions/setup-gcloud@1bee7de035d65ec5da40a31f8589e240eba8fde5
+      with:
+        service_account_key: ${{ secrets.GKE_SA_KEY }}
+        project_id: ${{ secrets.GKE_PROJECT }}
+
+    # Configure Docker to use the gcloud command-line tool as a credential
+    # helper for authentication
+    - run: |-
+        gcloud --quiet auth configure-docker us-east1-docker.pkg.dev
+
+    - uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: ${{ secrets.GKE_SA_KEY }}
+
+    # Build the Docker image
+    # TO-DO: Be sure the docker.pkg.dev path matches the path you want
+    
+    # TO-DO: If you get a 403 image pull backoff, try the below command with the relevant Artifact Registry repository
+    # gcloud artifacts repositories add-iam-policy-binding building-monitor --location=us-east1 --member=serviceAccount:36675469793-compute@developer.gserviceaccount.com --role="roles/artifactregistry.reader"
+    - name: Build Latest
+      run: |-
+        docker build \
+          --tag "us-east1-docker.pkg.dev/cubs-consulting/building-monitor/building-monitor:latest" \
+          --build-arg GITHUB_SHA="$GITHUB_SHA" \
+          --build-arg GITHUB_REF="$GITHUB_REF" \
+          .
+
+    # Push the Docker image to Google Container Registry
+    - name: Publish Latest
+      run: |-
+        docker push "us-east1-docker.pkg.dev/cubs-consulting/building-monitor/building-monitor:latest"
+
+    # Build the Docker image
+    # TO-DO: Be sure the docker.pkg.dev path matches the path you want
+    
+    # TO-DO: If you get a 403 image pull backoff, try the below command with the relevant Artifact Registry repository
+    # gcloud artifacts repositories add-iam-policy-binding bus-reservations --location=us-east1 --member=serviceAccount:36675469793-compute@developer.gserviceaccount.com --role="roles/artifactregistry.reader"
+    - name: Build SHA
+      run: |-
+        docker build \
+          --tag "us-east1-docker.pkg.dev/cubs-consulting/building-monitor/building-monitor:$GITHUB_SHA" \
+          --build-arg GITHUB_SHA="$GITHUB_SHA" \
+          --build-arg GITHUB_REF="$GITHUB_REF" \
+          .
+
+    # Push the Docker image to Google Container Registry
+    - name: Publish SHA
+      run: |-
+        docker push "us-east1-docker.pkg.dev/cubs-consulting/building-monitor/building-monitor:$GITHUB_SHA"
+
